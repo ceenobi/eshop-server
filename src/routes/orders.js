@@ -22,5 +22,10 @@ router.patch(
   verifyToken(Roles.All),
   OrderController.updateAnOrderStatus
 );
+router.delete(
+  "/:merchantCode/cancel/:orderId",
+  verifyToken(Roles.All),
+  OrderController.cancelOrder
+);
 
 export default router;

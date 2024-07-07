@@ -138,10 +138,9 @@ export const updateDiscount = tryCatch(async (req, res, next) => {
 });
 
 export const deleteDiscount = tryCatch(async (req, res, next) => {
-  const { discountId } = req.params;
-  const { merchantCode } = req.params;
+  const { discountId, merchantCode } = req.params;
   if (!isValidObjectId(discountId)) {
-    return next(createHttpError(400, "Invalid merchantId "));
+    return next(createHttpError(400, "Invalid discountId "));
   }
   if (!discountId || !merchantCode) {
     return next(createHttpError(400, "Params is missing"));

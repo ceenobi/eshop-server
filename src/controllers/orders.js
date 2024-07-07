@@ -41,8 +41,6 @@ const validateDiscountCode = async (discountCode, quantity, subTotal, next) => {
       );
     }
     if (quantity >= findDiscount.quantity) {
-      // const getDiscount = findDiscount.discountValue / 100;
-      // discountValue = (getDiscount * subTotal).toFixed(2);
       const getDiscount = findDiscount.discountValue / 100;
       const discountValue = getDiscount
         ? (getDiscount * subTotal).toFixed(2)
@@ -395,4 +393,37 @@ export const createCheckout = tryCatch(async (req, res, next) => {
     getShippingFee,
     total,
   });
+});
+
+export const cancelOrder = tryCatch(async (req, res, next) => {
+  const { orderId, merchantCode } = req.params;
+  const { id: userId } = req.user;
+
+  if (!orderId || !merchantCode) {
+    return next(createHttpError(400, "OrderId or merchantCode is missing"));
+  }
+
+  const user = await User.findById(userId);
+  if (!user) {
+    return next(createHttpError(404, "User not found"));
+  }
+
+  const merchant = await Merchant.findOne({ merchantCode: merchantCode });
+  if (!merchant) {
+    return next(createHttpError(404, "Merchant not found"));
+  }
+
+  const order = await Orders.findById(orderId);
+  if (!order) {
+    return next(createHttpError(404, "Order not found"));
+  }
+
+  if (order.userId.toString() !== userId) {
+    return next(
+      createHttpError(401, "Unauthorized! You can only delete your orders")
+    );
+  }
+
+  await order.deleteOne();
+  res.status(200).json({ msg: "Order canceled!" });
 });
